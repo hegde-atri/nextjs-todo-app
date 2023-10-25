@@ -1,0 +1,63 @@
+#+title: Session1
+#+author: Atri Hegde
+
+* Preface
+
+We now know the very basics of Nextjs 13. Let's make our experience with Next just a bit better. For this we'll be using the [[https://create.t3.gg][create-t3-app]].
+
+This creates a Nextjs app with all the libraries we want - Prisma, Tailwindcss and Next-Auth.
+The new part it adds is called tRPC. This "connects" the frontend to the backend for a magical experience.
+
+* Table of Contents :TOC:
+- [[#preface][Preface]]
+- [[#bun][Bun]]
+- [[#creating-our-app][Creating our app]]
+- [[#first-steps][First steps]]
+  - [[#layout][Layout]]
+
+* Bun
+
+We will be using =bun= instead of =yarn=. I noticed that yarn/npm were quite slow. We are replacing it with =bun=.
+
+Download and run the bun installer.
+
+#+begin_src bash
+curl -fsSL https://bun.sh/install | bash
+#+end_src
+
+You might need to add the installation path to your =$PATH=.
+
+You can do this by modifying your =~/.bashrc= file and appending this to the end of it. Replacing =YOUR_USERNAME= with your username 😆.
+
+#+begin_src bash
+# PATH for bun
+BUN_INSTALL="/home/YOUR_USERNAME/.bun"
+PATH="$BUN_INSTALL/bin:$PATH"
+#+end_src
+
+Test =bun= works by running =bun -v=.
+
+* Creating our app
+
+Now let's create our project.
+
+#+begin_src bash
+bun create t3-app@latest
+#+end_src
+
+1. Name your project.
+2. Select Typescript
+3. Select Yes for Tailwind CSS
+4. Select Yes for tRPC
+5. Select NextAuth.js as the authentication provider.
+6. Select Prisma for database ORM.
+7. Select Yes for App Router.
+8. Select Yes for Git repo
+9. Select Yes for bun install
+10. Hit enter leaving the import alias to the default =~/=
+
+Now you can open this folder in your IDE or text editor.
+
+* First steps
+
+** Layout
