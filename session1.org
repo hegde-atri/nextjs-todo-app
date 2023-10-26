@@ -13,7 +13,11 @@ The new part it adds is called tRPC. This "connects" the frontend to the backend
 - [[#bun][Bun]]
 - [[#creating-our-app][Creating our app]]
 - [[#first-steps][First steps]]
+  - [[#next-auth][Next-auth]]
+  - [[#environment-variables][Environment variables]]
+  - [[#prisma][Prisma]]
   - [[#layout][Layout]]
+- [[#header][Header]]
 
 * Bun
 
@@ -60,4 +64,110 @@ Now you can open this folder in your IDE or text editor.
 
 * First steps
 
+** Next-auth
+
+Replace Discord OAuth with Google. We change our =authOptions= to reflect this.
+Our =authOptions= is located in =src/server/auth.ts=.
+
+#+begin_src diff
+- import DiscordProvider from "next-auth/providers/discord";
++ import GoogleProvider from "next-auth/providers/google";
+...
+-    DiscordProvider({
+-      clientId: env.DISCORD_CLIENT_ID,
+-      clientSecret: env.DISCORD_CLIENT_SECRET,
+-    }),
++    GoogleProvider({
++      clientId: env.GOOGLE_CLIENT_ID,
++      clientSecret: env.GOOGLE_CLIENT_SECRET,
++    }),
+#+end_src
+
+** Environment variables
+
+Use your keys from
+
+#+begin_quote
+Use your keys from the previous project for now.
+#+end_quote
+
+#+begin_src diff
+- # Next Auth Discord Provider
+- DISCORD_CLIENT_ID=""
+- DISCORD_CLIENT_SECRET=""
++ # Next Auth Google Provider
++ GOOGLE_CLIENT_ID=""
++ GOOGLE_CLIENT_SECRET=""
+#+end_src
+
+If you try to run the program now you should get a bunch of errors. That's because we have validation for environment variables.
+
+
+This file for this is in =src/env.mjs=. Just search for =DISCORD= and replace all of them with =GOOGLE=.
+
+#+begin_src diff
+...
+- DISCORD_CLIENT_ID: z.string(),
+- DISCORD_CLIENT_SECRET: z.string(),
++ GOOGLE_CLIENT_ID: z.string(),
++ GOOGLE_CLIENT_SECRET: z.string(),
+...
+- DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
+- DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
++ GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
++ GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+#+end_src
+
+** Prisma
+
+There is already a schema defined but no database yet. To reflect our schema in our database lets run the command
+
+#+begin_src bash
+bun x prisma db push
+#+end_src
+
 ** Layout
+
+Let's create a home layout. Going for a twitter style layout.
+
+I'm *adding* this to =src/styles/globals.css=.
+
+#+begin_src css
+html {
+  @apply bg-black text-slate-400;
+}
+#+end_src
+
+Let's also switch up the layout. In =src/app/layout.tsx= make it such that it returns this instead.
+
+#+begin_src typescript
+...
+  return (
+    <html lang="en">
+      <body className={`font-sans ${inter.variable}`}>
+        <TRPCReactProvider headers={headers()}>
+          <main className="overflow-none flex h-screen justify-center">
+            <div className="flex h-full w-full flex-col border-x border-slate-400 md:max-w-2xl lg:max-w-4xl">
+              {children}
+            </div>
+          </main>
+        </TRPCReactProvider>
+      </body>
+    </html>
+  );
+#+end_src
+
+And now in =page.tsx=, make the Home function return this instead
+#+begin_src typescript
+  return (
+    <div className="">
+      <h1>Hey!</h1>
+    </div>
+  );
+#+end_src
+
+* Header
+
+First let's make a header which let's us know if we are signed in.
+
+I'm going to create a component for it. I am going to create a new file =src/app/_components/Header.tsx=.
