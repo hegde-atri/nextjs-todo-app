@@ -3,17 +3,16 @@ import { useSession } from "next-auth/react";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { useState } from "react";
 import { api } from "~/trpc/react";
-import { useRouter } from "next/navigation";
 
 export const Header = () => {
-  let router = useRouter();
   let { data: session } = useSession();
   let [todo, setTodo] = useState("");
+  const ctx = api.useContext();
 
-  const { mutate } = api.todo.create.useMutation({
+  const { mutate, isLoading } = api.todo.create.useMutation({
     onSuccess: () => {
       setTodo("");
-      router.refresh();
+      void ctx.todo.getAll.invalidate();
     },
   });
 
@@ -32,6 +31,7 @@ export const Header = () => {
         className="grow bg-transparent p-4 px-16 outline-none"
         value={todo}
         placeholder="Task"
+        disabled={isLoading}
         onChange={(e) => setTodo(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
@@ -42,6 +42,13 @@ export const Header = () => {
           }
         }}
       />
+      {isLoading ? (
+        <div>
+          <LoadingSpinner size={20} />
+        </div>
+      ) : (
+        <button className="p-2 text-3xl">+</button>
+      )}
     </div>
   );
   /* return (
