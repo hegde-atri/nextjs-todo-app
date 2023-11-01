@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const todoRouter = createTRPCRouter({
   create: protectedProcedure
@@ -17,4 +17,18 @@ export const todoRouter = createTRPCRouter({
         },
       });
     }),
+
+  hello: publicProcedure.query(() => {
+    return {
+      greeting: `Hello`,
+      hello: "",
+    };
+  }),
+
+  testing: publicProcedure.query(() => {
+    return {
+      message: "",
+      user: "",
+    };
+  }),
 });

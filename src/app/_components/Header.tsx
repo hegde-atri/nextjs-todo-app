@@ -9,6 +9,7 @@ export const Header = () => {
   let router = useRouter();
   let { data: session } = useSession();
   let [todo, setTodo] = useState("");
+
   const { mutate } = api.todo.create.useMutation({
     onSuccess: () => {
       setTodo("");
@@ -17,7 +18,6 @@ export const Header = () => {
   });
 
   let username = "hegde-atri";
-
   return (
     <div className="flex justify-center border-b border-slate-400 p-2">
       <a href={`@ ${username}`}>
