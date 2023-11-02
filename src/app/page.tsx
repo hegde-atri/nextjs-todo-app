@@ -3,8 +3,10 @@ import { Header } from "./_components/Header";
 import { api } from "~/trpc/react";
 import { LoadingPage, LoadingSpinner } from "./_components/LoadingSpinner";
 import type { Todo } from "@prisma/client";
+import { useSession } from "next-auth/react";
 
 export default function Home() {
+  const session = useSession();
   const { data, isLoading } = api.todo.getAll.useQuery();
 
   return (
@@ -12,18 +14,18 @@ export default function Home() {
       <Header />
       {isLoading ? (
         <div className="mx-auto flex">
-          <LoadingSpinner size={30} />
+          <LoadingPage />
         </div>
       ) : (
         data!.map((item) => {
-          return <Todo todo={item} />;
+          return <Todo todo={item} authenticated={!!session.data?.user} />;
         })
       )}
     </div>
   );
 }
 
-const Todo = (props: { todo: Todo }) => {
+const Todo = (props: { todo: Todo; authenticated: boolean }) => {
   const { mutate: updateStatus, isLoading: isStatusUpdating } =
     api.todo.updateDoneStatus.useMutation({
       onSuccess: () => {
@@ -54,29 +56,35 @@ const Todo = (props: { todo: Todo }) => {
           {props.todo.done ? "Done" : "Pending"}
         </p>
       </div>
-      <div className="flex justify-center text-slate-100">
-        {props.todo.done ? (
+      {props.authenticated ? (
+        <div className="flex justify-center text-slate-100">
+          {props.todo.done ? (
+            <button
+              className="rounded-md bg-orange-800 p-2"
+              onClick={() =>
+                updateStatus({ todoId: props.todo.id, done: false })
+              }
+            >
+              {isStatusUpdating ? <LoadingSpinner /> : "Undo"}
+            </button>
+          ) : (
+            <button
+              className="items-center rounded-md bg-green-900 p-2"
+              onClick={() =>
+                updateStatus({ todoId: props.todo.id, done: true })
+              }
+            >
+              {isStatusUpdating ? <LoadingSpinner /> : "Done"}
+            </button>
+          )}
           <button
-            className="rounded-md bg-orange-800 p-2"
-            onClick={() => updateStatus({ todoId: props.todo.id, done: false })}
+            className="ml-2 rounded-md bg-red-900 p-2"
+            onClick={() => deleteTodo({ todoId: props.todo.id })}
           >
-            {isStatusUpdating ? <LoadingSpinner /> : "Undo"}
+            {isDeleting ? <LoadingSpinner /> : "Delete"}
           </button>
-        ) : (
-          <button
-            className="items-center rounded-md bg-green-900 p-2"
-            onClick={() => updateStatus({ todoId: props.todo.id, done: true })}
-          >
-            {isStatusUpdating ? <LoadingSpinner /> : "Done"}
-          </button>
-        )}
-        <button
-          className="ml-2 rounded-md bg-red-900 p-2"
-          onClick={() => deleteTodo({ todoId: props.todo.id })}
-        >
-          {isDeleting ? <LoadingSpinner /> : "Delete"}
-        </button>
-      </div>
+        </div>
+      ) : null}
     </div>
   );
 };

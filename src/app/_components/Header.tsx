@@ -1,5 +1,5 @@
 "use client";
-import { useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { useState } from "react";
 import { api } from "~/trpc/react";
@@ -7,28 +7,40 @@ import { api } from "~/trpc/react";
 export const Header = () => {
   let { data: session } = useSession();
   let [todo, setTodo] = useState("");
-  const ctx = api.useContext();
+  const utils = api.useUtils();
 
   const { mutate, isLoading } = api.todo.create.useMutation({
     onSuccess: () => {
       setTodo("");
-      void ctx.todo.getAll.invalidate();
+      void utils.todo.getAll.invalidate();
     },
   });
 
-  let username = "hegde-atri";
+  if (!session?.user) {
+    return (
+      <div className="flex justify-end border-b border-slate-400 p-2">
+        <button
+          className="rounded-md bg-slate-900 p-2 text-slate-200"
+          onClick={() => signIn("google")}
+        >
+          Login
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex justify-center border-b border-slate-400 p-2">
-      <a href={`@ ${username}`}>
+      <button onClick={() => signOut()}>
         <img
           className="rounded-full"
           src={session?.user.image!}
           height={65}
           width={65}
         />
-      </a>
+      </button>
       <input
-        className="grow bg-transparent p-4 px-16 outline-none"
+        className="grow bg-transparent p-4 px-12 outline-none"
         value={todo}
         placeholder="Task"
         disabled={isLoading}
@@ -47,7 +59,7 @@ export const Header = () => {
           <LoadingSpinner size={20} />
         </div>
       ) : (
-        <button className="p-2 text-3xl">+</button>
+        <button className="p-2 text-3xl text-slate-300">+</button>
       )}
     </div>
   );
