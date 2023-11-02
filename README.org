@@ -8,3 +8,4 @@ By the end of this project we should be ready to tackle it head-on!
 In the last session, we will create a template on GitHub which will have the =t3-app= setup with relevant custom =next-auth=.
 
 - [[./session1.org][Session 1]]
+- [[./session2.org][Session 2]]
